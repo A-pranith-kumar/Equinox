@@ -94,3 +94,4 @@ C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox\obj\Debug\net9.0\re
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox\obj\Debug\net9.0\Equinox.pdb
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox\obj\Debug\net9.0\Equinox.genruntimeconfig.cache
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox\obj\Debug\net9.0\ref\Equinox.dll
+C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox\obj\Debug\net9.0\Equinox.sourcelink.json
