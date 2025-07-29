@@ -13,4 +13,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- ✅ Ensure SQLite DB is published to Azure -->
+  <ItemGroup>
+    <Content Update="Equinox.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

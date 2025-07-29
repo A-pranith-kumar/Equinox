@@ -366,6 +366,7 @@ C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\ne
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.RazorAssemblyInfo.cache
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.RazorAssemblyInfo.cs
+C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.sourcelink.json
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\rjimswa.dswa.cache.json
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
