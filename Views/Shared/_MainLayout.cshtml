@@ -1,0 +1,83 @@
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    Layout = "_Layout";
+
+    var bookingsJson = HttpContextAccessor.HttpContext?.Session.GetString("BookingList");
+    var bookingCount = 0;
+
+    if (!string.IsNullOrEmpty(bookingsJson))
+    {
+        var list = System.Text.Json.JsonSerializer.Deserialize<List<int>>(bookingsJson);
+        bookingCount = list?.Count ?? 0;
+    }
+}
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Equinox</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Club" asp-action="List">Clubs</a>
+                    </li>
+
+                    <!-- ✅ FIX: Use EquinoxClassController for Classes -->
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="EquinoxClass" asp-action="Filter">Classes</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Membership" asp-action="List">Membership</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="PrivateClass" asp-action="List">Private Training</a>
+                    </li>
+
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" asp-controller="EquinoxClass" asp-action="Booking">
+                            <i class="fas fa-shopping-cart"></i>
+                            @if (bookingCount > 0)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
+                                    @bookingCount
+                                </span>
+                            }
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-2">
+        @if (TempData["message"] != null)
+        {
+            <div class="alert alert-info">@TempData["message"]</div>
+        }
+    </div>
+</header>
+
+<main class="container mt-3">
+    @RenderBody()
+</main>
+
+<footer class="bg-light text-center mt-4 p-3">
+    <a href="/Home/Contact">Contact Us</a> |
+    <a href="/Home/Privacy">Privacy Policy</a> |
+    <a href="/Home/Terms">Terms & Conditions</a> |
+    <a href="/Home/Cookie">Cookie Policy</a>
+</footer>

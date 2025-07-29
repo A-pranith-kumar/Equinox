@@ -1,0 +1,76 @@
+@model Equinox.Models.EquinoxFilterViewModel
+
+@{
+    ViewData["Title"] = "Filter Classes";
+}
+
+<h2 class="text-center mb-4">Filter Equinox Classes</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["Message"]
+    </div>
+}
+
+<form asp-action="Filter" asp-controller="EquinoxClass" method="get" class="row mb-4">
+    <div class="col-md-4">
+        <label class="form-label">Filter by Club</label>
+        <select class="form-control" name="selectedClubId">
+            <option value="0">All Clubs</option>
+            @foreach (var club in Model.Clubs)
+            {
+                <option value="@club.ClubId" selected="@(club.ClubId == Model.SelectedClubId)">
+                    @club.Name
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Filter by Category</label>
+        <select class="form-control" name="selectedCategoryId">
+            <option value="0">All Categories</option>
+            @foreach (var category in Model.Categories)
+            {
+                <option value="@category.ClassCategoryId" selected="@(category.ClassCategoryId == Model.SelectedCategoryId)">
+                    @category.Name
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-filter"></i> Apply Filters
+        </button>
+    </div>
+</form>
+
+@if (Model.EquinoxClasses.Any())
+{
+    <div class="row">
+        @foreach (var item in Model.EquinoxClasses)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="~/images/@item.ClassPicture" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">
+                            <strong>Club:</strong> @item.Club.Name<br />
+                            <strong>Category:</strong> @item.ClassCategory.Name
+                        </p>
+                        <a asp-controller="EquinoxClass" asp-action="Detail" asp-route-id="@item.EquinoxClassId" class="btn btn-outline-primary btn-sm">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <p>No classes match the selected filters.</p>
+    </div>
+}
