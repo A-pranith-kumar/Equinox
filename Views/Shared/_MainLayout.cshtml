@@ -1,9 +1,7 @@
-@inject IHttpContextAccessor HttpContextAccessor
-
 @{
     Layout = "_Layout";
 
-    var bookingsJson = HttpContextAccessor.HttpContext?.Session.GetString("BookingList");
+    var bookingsJson = Context.Session.GetString("BookingIds"); // ✅ Use "BookingIds" key from EquinoxSession
     var bookingCount = 0;
 
     if (!string.IsNullOrEmpty(bookingsJson))
@@ -28,7 +26,6 @@
                         <a class="nav-link" asp-controller="Club" asp-action="List">Clubs</a>
                     </li>
 
-                    <!-- ✅ FIX: Use EquinoxClassController for Classes -->
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="EquinoxClass" asp-action="Filter">Classes</a>
                     </li>

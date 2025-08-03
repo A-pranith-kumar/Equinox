@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Equinox.Models;
+using Equinox.Helpers;
 
 namespace Equinox.Controllers
 {
@@ -13,10 +14,16 @@ namespace Equinox.Controllers
             _context = context;
         }
 
+        public IActionResult Index()
+        {
+            return RedirectToAction("Filter");
+        }
+
         public IActionResult Filter(int selectedClubId = 0, int selectedCategoryId = 0)
         {
-            HttpContext.Session.SetInt32("SelectedClubId", selectedClubId);
-            HttpContext.Session.SetInt32("SelectedCategoryId", selectedCategoryId);
+            var session = new EquinoxSession(HttpContext);
+            session.SetSelectedClubId(selectedClubId);
+            session.SetSelectedCategoryId(selectedCategoryId);
 
             var classesQuery = _context.EquinoxClasses
                 .Include(c => c.Club)
@@ -59,22 +66,23 @@ namespace Equinox.Controllers
         [HttpPost]
         public IActionResult Book(int id)
         {
-            SessionHelper.AddBooking(HttpContext.Session, id);
+            var session = new EquinoxSession(HttpContext);
+            session.AddBookingId(id);
+            session.SetBookingCount(session.GetBookingIds().Count);
+
             TempData["Message"] = "Class successfully booked!";
 
-            var selectedClubId = HttpContext.Session.GetInt32("SelectedClubId") ?? 0;
-            var selectedCategoryId = HttpContext.Session.GetInt32("SelectedCategoryId") ?? 0;
-
-            return RedirectToAction("Filter", "EquinoxClass", new
+            return RedirectToAction("Filter", new
             {
-                selectedClubId,
-                selectedCategoryId
+                selectedClubId = session.GetSelectedClubId(),
+                selectedCategoryId = session.GetSelectedCategoryId()
             });
         }
 
         public IActionResult Booking()
         {
-            var bookings = SessionHelper.GetBookings(HttpContext.Session);
+            var session = new EquinoxSession(HttpContext);
+            var bookings = session.GetBookingIds();
 
             var bookedClasses = _context.EquinoxClasses
                 .Include(c => c.Club)
@@ -89,10 +97,12 @@ namespace Equinox.Controllers
         [HttpPost]
         public IActionResult Cancel(int id)
         {
-            SessionHelper.RemoveBooking(HttpContext.Session, id);
-            TempData["Message"] = "Booking cancelled.";
+            var session = new EquinoxSession(HttpContext);
+            session.RemoveBookingId(id);
+            session.SetBookingCount(session.GetBookingIds().Count);
 
-            return RedirectToAction(nameof(Booking));
+            TempData["Message"] = "Booking cancelled.";
+            return RedirectToAction("Booking");
         }
     }
 }
