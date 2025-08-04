@@ -1,0 +1,40 @@
+@model List<Equinox.Models.Membership>
+
+@{
+    ViewData["Title"] = "Membership Plans";
+}
+
+<h2 class="text-center my-4">Our Membership Plans</h2>
+
+@if (TempData["msg"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["msg"]
+    </div>
+}
+
+<div class="container">
+    <div class="row">
+        @foreach (var plan in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border rounded">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@plan.Type</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> $@plan.Price<br />
+                            <strong>Duration:</strong> @plan.DurationInMonths month(s)
+                        </p>
+                        <form asp-action="Subscribe" method="post">
+                            <input type="hidden" name="Id" value="@plan.Id" />
+                            <input type="hidden" name="Type" value="@plan.Type" />
+                            <input type="hidden" name="Price" value="@plan.Price" />
+                            <input type="hidden" name="DurationInMonths" value="@plan.DurationInMonths" />
+                            <button type="submit" class="btn btn-primary">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

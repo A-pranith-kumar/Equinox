@@ -1,0 +1,41 @@
+@model Equinox.Models.EquinoxClass
+
+@{
+    ViewData["Title"] = "Class Details";
+    var selectedClubId = Context.Session.GetInt32("SelectedClubId") ?? 0;
+    var selectedCategoryId = Context.Session.GetInt32("SelectedCategoryId") ?? 0;
+}
+
+<h2 class="text-center mb-4">Class Details</h2>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card shadow">
+            <img src="~/images/@Model.ClassPicture" class="card-img-top" alt="@Model.Name" style="height: 300px; object-fit: cover;" />
+            <div class="card-body">
+                <h3 class="card-title">@Model.Name</h3>
+                <p class="card-text">
+                    <strong>Club:</strong> @Model.Club.Name<br />
+                    <strong>Category:</strong> @Model.ClassCategory.Name<br />
+                    <strong>Day:</strong> @Model.ClassDay<br />
+                    <strong>Time:</strong> @Model.Time<br />
+                    <strong>Coach:</strong> @Model.Coach.Name
+                </p>
+                <div class="d-flex justify-content-between">
+                    <a asp-controller="EquinoxClass" asp-action="Filter"
+                       asp-route-selectedClubId="@selectedClubId"
+                       asp-route-selectedCategoryId="@selectedCategoryId"
+                       class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Filter
+                    </a>
+                    <form asp-controller="EquinoxClass" asp-action="Book" method="post">
+                        <input type="hidden" name="id" value="@Model.EquinoxClassId" />
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-calendar-plus"></i> Book this Class
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
