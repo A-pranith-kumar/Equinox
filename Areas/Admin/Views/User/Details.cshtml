@@ -1,0 +1,29 @@
+@model Equinox.Models.User
+
+@{
+    ViewData["Title"] = "Coach Details";
+}
+
+<h2 class="text-center mb-4">Coach Details</h2>
+
+<div class="mb-3">
+    <strong>Name:</strong> @Model.Name
+</div>
+
+<div class="mb-3">
+    <strong>Phone:</strong> @Model.PhoneNumber
+</div>
+
+<div class="mb-3">
+    <strong>Email:</strong> @Model.Email
+</div>
+
+<div class="mb-3">
+    <strong>DOB:</strong> @Model.DOB.ToShortDateString()
+</div>
+
+<div class="mb-3">
+    <strong>Is Coach:</strong> @(Model.IsCoach ? "Yes" : "No")
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

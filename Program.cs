@@ -19,7 +19,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// ✅ Add MVC services
+// ✅ Add MVC services with view + model binding validation
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -39,7 +39,12 @@ app.UseRouting();
 app.UseSession(); // ✅ Must be before Authorization
 app.UseAuthorization();
 
-// ✅ Set up default route
+// ✅ Add support for areas (required for Admin area routing to work)
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+// ✅ Default fallback route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

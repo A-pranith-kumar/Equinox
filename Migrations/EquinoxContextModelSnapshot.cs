@@ -39,8 +39,12 @@ namespace Equinox.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("ClassCategoryId");
@@ -51,16 +55,19 @@ namespace Equinox.Migrations
                         new
                         {
                             ClassCategoryId = 1,
+                            Image = "boxing.jpg",
                             Name = "Boxing"
                         },
                         new
                         {
                             ClassCategoryId = 2,
+                            Image = "yoga.jpg",
                             Name = "Yoga"
                         },
                         new
                         {
                             ClassCategoryId = 3,
+                            Image = "hiit.jpg",
                             Name = "HIIT"
                         });
                 });
@@ -73,6 +80,7 @@ namespace Equinox.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
@@ -199,6 +207,7 @@ namespace Equinox.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
@@ -244,19 +253,19 @@ namespace Equinox.Migrations
             modelBuilder.Entity("Equinox.Models.EquinoxClass", b =>
                 {
                     b.HasOne("Equinox.Models.ClassCategory", "ClassCategory")
-                        .WithMany("EquinoxClasses")
+                        .WithMany()
                         .HasForeignKey("ClassCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Equinox.Models.Club", "Club")
-                        .WithMany("EquinoxClasses")
+                        .WithMany()
                         .HasForeignKey("ClubId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Equinox.Models.User", "Coach")
-                        .WithMany("EquinoxClasses")
+                        .WithMany()
                         .HasForeignKey("CoachId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -266,21 +275,6 @@ namespace Equinox.Migrations
                     b.Navigation("Club");
 
                     b.Navigation("Coach");
-                });
-
-            modelBuilder.Entity("Equinox.Models.ClassCategory", b =>
-                {
-                    b.Navigation("EquinoxClasses");
-                });
-
-            modelBuilder.Entity("Equinox.Models.Club", b =>
-                {
-                    b.Navigation("EquinoxClasses");
-                });
-
-            modelBuilder.Entity("Equinox.Models.User", b =>
-                {
-                    b.Navigation("EquinoxClasses");
                 });
 #pragma warning restore 612, 618
         }

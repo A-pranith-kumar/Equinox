@@ -1,0 +1,17 @@
+@model Equinox.Models.User
+
+@{
+    ViewData["Title"] = "Delete Coach";
+}
+
+<h2 class="text-center mb-4">Delete Coach</h2>
+
+<div class="alert alert-danger">
+    Are you sure you want to delete <strong>@Model.Name</strong>?
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="UserId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

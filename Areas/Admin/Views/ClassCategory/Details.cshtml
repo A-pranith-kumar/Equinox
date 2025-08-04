@@ -1,0 +1,17 @@
+@model Equinox.Models.ClassCategory
+
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+<h2 class="text-center mb-4">Category Details</h2>
+
+<div class="mb-3">
+    <strong>Name:</strong> @Model.Name
+</div>
+
+<div class="mb-3">
+    <strong>Image:</strong> @Model.Image
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

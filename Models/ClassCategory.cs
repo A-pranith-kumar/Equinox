@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Equinox.Models
@@ -8,8 +7,11 @@ namespace Equinox.Models
         public int ClassCategoryId { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        [StringLength(50)]
+        [RegularExpression("^[a-zA-Z0-9 ]*$", ErrorMessage = "Alphanumeric only")]
+        public required string Name { get; set; }
 
-        public List<EquinoxClass> EquinoxClasses { get; set; }
+        // ✅ Add this property to fix the error
+        public string? Image { get; set; }
     }
 }

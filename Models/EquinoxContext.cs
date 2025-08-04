@@ -22,11 +22,11 @@ namespace Equinox.Models
                 new Club { ClubId = 3, Name = "Lincoln Park", PhoneNumber = "312-000-0003" }
             );
 
-            // ✅ Seeding Class Categories
+            // ✅ Seeding Class Categories with Image (non-nullable)
             modelBuilder.Entity<ClassCategory>().HasData(
-                new ClassCategory { ClassCategoryId = 1, Name = "Boxing" },
-                new ClassCategory { ClassCategoryId = 2, Name = "Yoga" },
-                new ClassCategory { ClassCategoryId = 3, Name = "HIIT" }
+                new ClassCategory { ClassCategoryId = 1, Name = "Boxing", Image = "boxing.jpg" },
+                new ClassCategory { ClassCategoryId = 2, Name = "Yoga", Image = "yoga.jpg" },
+                new ClassCategory { ClassCategoryId = 3, Name = "HIIT", Image = "hiit.jpg" }
             );
 
             // ✅ Seeding Users (Coaches)

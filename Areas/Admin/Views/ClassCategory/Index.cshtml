@@ -1,0 +1,33 @@
+@model IEnumerable<Equinox.Models.ClassCategory>
+
+@{
+    ViewData["Title"] = "Category List";
+}
+
+<h2 class="text-center mb-4">Category List</h2>
+
+<p>
+    <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Create" class="btn btn-primary">Create New Category</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.Name</td>
+        <td>
+            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Edit" asp-route-id="@item.ClassCategoryId">Edit</a> |
+            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Details" asp-route-id="@item.ClassCategoryId">Details</a> |
+            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Delete" asp-route-id="@item.ClassCategoryId">Delete</a>
+        </td>
+    </tr>
+}
+    </tbody>
+</table>
