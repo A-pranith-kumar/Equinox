@@ -8,24 +8,32 @@ namespace Equinox.Models
     {
         public int UserId { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [Required(ErrorMessage = "Name is required.")]
+        [MaxLength(50)]
+        [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Name must be alphanumeric.")]
+        [Display(Name = "Name")]
+        [Remote("VerifyName", "User", AdditionalFields = "UserId", ErrorMessage = "Name already exists.")]
         public string Name { get; set; }
 
-        [Required]
-        [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone must be 10 digits")]
-        [Remote("VerifyPhone", "User", AdditionalFields = "UserId", ErrorMessage = "Phone already used")]
+        [Required(ErrorMessage = "Phone number is required.")]
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        [Display(Name = "Phone Number")]
+        [Remote("VerifyPhoneNumber", "User", AdditionalFields = "UserId", ErrorMessage = "Phone number already exists.")]
         public string PhoneNumber { get; set; }
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
+        [Display(Name = "Email")]
+        [Remote("VerifyEmail", "User", AdditionalFields = "UserId", ErrorMessage = "Email already exists.")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Date of Birth is required.")]
         [DataType(DataType.Date)]
-        [MinimumAge(18, ErrorMessage = "Must be at least 18 years old")]
+        [MinimumAge(8, 80)]
+        [Display(Name = "Date of Birth")]
         public DateTime DOB { get; set; }
 
-        public bool IsCoach { get; set; }
+        [Display(Name = "Is Coach")]
+        public bool IsCoach { get; set; } = false;
     }
 }

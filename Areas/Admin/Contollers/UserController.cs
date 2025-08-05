@@ -30,13 +30,26 @@ namespace Equinox.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(User user)
         {
+            bool nameExists = _context.Users.Any(u => u.Name == user.Name);
+            bool emailExists = _context.Users.Any(u => u.Email == user.Email);
+            bool phoneExists = _context.Users.Any(u => u.PhoneNumber == user.PhoneNumber);
+
+            if (nameExists)
+                ModelState.AddModelError("Name", "Name already exists.");
+            if (emailExists)
+                ModelState.AddModelError("Email", "Email already exists.");
+            if (phoneExists)
+                ModelState.AddModelError("PhoneNumber", "Phone number already exists.");
+
             if (ModelState.IsValid)
             {
                 _context.Users.Add(user);
                 _context.SaveChanges();
+                TempData["Message"] = "Coach created successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
+            TempData["Message"] = "Please fix the error.";
             return View(user);
         }
 
@@ -53,13 +66,26 @@ namespace Equinox.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(User user)
         {
+            bool nameExists = _context.Users.Any(u => u.Name == user.Name && u.UserId != user.UserId);
+            bool emailExists = _context.Users.Any(u => u.Email == user.Email && u.UserId != user.UserId);
+            bool phoneExists = _context.Users.Any(u => u.PhoneNumber == user.PhoneNumber && u.UserId != user.UserId);
+
+            if (nameExists)
+                ModelState.AddModelError("Name", "Name already exists.");
+            if (emailExists)
+                ModelState.AddModelError("Email", "Email already exists.");
+            if (phoneExists)
+                ModelState.AddModelError("PhoneNumber", "Phone number already exists.");
+
             if (ModelState.IsValid)
             {
                 _context.Users.Update(user);
                 _context.SaveChanges();
+                TempData["Message"] = "Coach details updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
+            TempData["Message"] = "Please fix the error.";
             return View(user);
         }
 
@@ -90,17 +116,33 @@ namespace Equinox.Areas.Admin.Controllers
             {
                 _context.Users.Remove(user);
                 _context.SaveChanges();
+                TempData["Message"] = "Coach deleted successfully!";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ Remote validation for PhoneNumber uniqueness
+        // Remote Validations
+
         [AcceptVerbs("GET", "POST")]
-        public IActionResult VerifyPhone(string phoneNumber, int userId = 0)
+        public IActionResult VerifyPhoneNumber(string phoneNumber, int userId = 0)
         {
             var exists = _context.Users.Any(u => u.PhoneNumber == phoneNumber && u.UserId != userId);
-            return Json(!exists); // return true if unique
+            return Json(!exists);
+        }
+
+        [AcceptVerbs("GET", "POST")]
+        public IActionResult VerifyName(string name, int userId = 0)
+        {
+            var exists = _context.Users.Any(u => u.Name == name && u.UserId != userId);
+            return Json(!exists);
+        }
+
+        [AcceptVerbs("GET", "POST")]
+        public IActionResult VerifyEmail(string email, int userId = 0)
+        {
+            var exists = _context.Users.Any(u => u.Email == email && u.UserId != userId);
+            return Json(!exists);
         }
     }
 }

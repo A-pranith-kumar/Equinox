@@ -6,6 +6,13 @@
 
 <h2 class="text-center mb-4">Create Coach</h2>
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
+
 <form asp-action="Create" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -31,6 +38,7 @@
         <label asp-for="DOB" class="form-label"></label>
         <input asp-for="DOB" class="form-control" type="date" />
         <span asp-validation-for="DOB" class="text-danger"></span>
+        <span id="dob-error" class="text-danger"></span>
     </div>
 
     <div class="form-check mb-3">
@@ -44,4 +52,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/DOBValidation.js"></script>
 }

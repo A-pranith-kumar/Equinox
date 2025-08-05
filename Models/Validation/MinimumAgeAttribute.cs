@@ -5,30 +5,35 @@ namespace Equinox.Models
 {
     public class MinimumAgeAttribute : ValidationAttribute
     {
-        private readonly int _minimumAge;
+        private readonly int _min;
+        private readonly int _max;
 
-        public MinimumAgeAttribute(int minimumAge)
+        public MinimumAgeAttribute(int min, int max)
         {
-            _minimumAge = minimumAge;
+            _min = min;
+            _max = max;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value is DateTime dob)
+            // Check if DOB is null or invalid
+            if (value == null || !(value is DateTime dob))
             {
-                var today = DateTime.Today;
-                var age = today.Year - dob.Year;
-
-                if (dob > today.AddYears(-age))
-                    age--;
-
-                if (age >= _minimumAge)
-                    return ValidationResult.Success;
-                else
-                    return new ValidationResult(ErrorMessage ?? $"Minimum age is {_minimumAge}.");
+                return new ValidationResult("Invalid date of birth.");
             }
 
-            return new ValidationResult("Invalid date format.");
+            // Calculate age based on today's date
+            var today = DateTime.Today;
+            var age = today.Year - dob.Year;
+            if (dob > today.AddYears(-age)) age--;
+
+            // Validate age range
+            if (age < _min || age > _max)
+            {
+                return new ValidationResult($"Age must be between {_min} and {_max}.");
+            }
+
+            return ValidationResult.Success;
         }
     }
 }

@@ -1,13 +1,15 @@
-@model Equinox.Models.ClassCategory
+@model Equinox.Models.User
 
 @{
-    ViewData["Title"] = "Create Class Category";
+    ViewData["Title"] = "Create Coach";
 }
 
-<h2>Create Class Category</h2>
+<h2 class="text-center mb-4">Create Coach</h2>
 
 <form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger">
+        @TempData["Message"]
+    </div>
 
     <div class="mb-3">
         <label asp-for="Name" class="form-label"></label>
@@ -16,9 +18,27 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="Image" class="form-label"></label>
-        <input asp-for="Image" class="form-control" />
-        <span asp-validation-for="Image" class="text-danger"></span>
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DOB" class="form-label"></label>
+        <input asp-for="DOB" class="form-control" type="date" />
+        <span asp-validation-for="DOB" class="text-danger"></span>
+        <span id="dob-error" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsCoach" class="form-check-input" />
+        <label asp-for="IsCoach" class="form-check-label"></label>
     </div>
 
     <button type="submit" class="btn btn-success">Create</button>
@@ -27,4 +47,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/DOBValidation.js"></script>
 }
