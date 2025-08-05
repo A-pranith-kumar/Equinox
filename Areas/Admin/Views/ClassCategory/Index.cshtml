@@ -6,28 +6,61 @@
 
 <h2 class="text-center mb-4">Category List</h2>
 
-<p>
-    <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Create" class="btn btn-primary">Create New Category</a>
+@if (TempData["Success"] is string msg)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No categories yet. Click “Create New Category” to add one.</div>
+}
+
+<p class="mb-3">
+    <!-- ✅ Make sure this points to Admin/ClassCategory/Create -->
+    <a class="btn btn-primary"
+       asp-area="Admin"
+       asp-controller="ClassCategory"
+       asp-action="Create">
+        Create New Category
+    </a>
 </p>
 
-<table class="table">
+<table class="table table-striped align-middle">
     <thead>
         <tr>
             <th>Name</th>
-            <th>Actions</th>
+            <th style="width:220px;">Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model)
-{
-    <tr>
-        <td>@item.Name</td>
-        <td>
-            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Edit" asp-route-id="@item.ClassCategoryId">Edit</a> |
-            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Details" asp-route-id="@item.ClassCategoryId">Details</a> |
-            <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Delete" asp-route-id="@item.ClassCategoryId">Delete</a>
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>
+                <a class="btn btn-sm btn-outline-primary me-1"
+                   asp-area="Admin"
+                   asp-controller="ClassCategory"
+                   asp-action="Edit"
+                   asp-route-id="@item.ClassCategoryId">Edit</a>
+
+                <a class="btn btn-sm btn-outline-secondary me-1"
+                   asp-area="Admin"
+                   asp-controller="ClassCategory"
+                   asp-action="Details"
+                   asp-route-id="@item.ClassCategoryId">Details</a>
+
+                <a class="btn btn-sm btn-outline-danger"
+                   asp-area="Admin"
+                   asp-controller="ClassCategory"
+                   asp-action="Delete"
+                   asp-route-id="@item.ClassCategoryId">Delete</a>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
