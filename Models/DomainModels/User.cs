@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Equinox.Models
+namespace Equinox.Models.DomainModels
 {
     public class User
     {
@@ -12,19 +12,40 @@ namespace Equinox.Models
         [MaxLength(50)]
         [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Name must be alphanumeric.")]
         [Display(Name = "Name")]
-        [Remote("VerifyName", "User", AdditionalFields = "UserId", ErrorMessage = "Name already exists.")]
+        [Remote(
+            action: "VerifyName",
+            controller: "User",
+            areaName: "Admin",
+            AdditionalFields = nameof(UserId),
+            HttpMethod = "Post",
+            ErrorMessage = "Name already exists."
+        )]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Phone number is required.")]
         [Phone(ErrorMessage = "Invalid phone number format.")]
         [Display(Name = "Phone Number")]
-        [Remote("VerifyPhoneNumber", "User", AdditionalFields = "UserId", ErrorMessage = "Phone number already exists.")]
+        [Remote(
+            action: "VerifyPhoneNumber",
+            controller: "User",
+            areaName: "Admin",
+            AdditionalFields = nameof(UserId),
+            HttpMethod = "Post",
+            ErrorMessage = "Phone number already exists."
+        )]
         public string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         [Display(Name = "Email")]
-        [Remote("VerifyEmail", "User", AdditionalFields = "UserId", ErrorMessage = "Email already exists.")]
+        [Remote(
+            action: "VerifyEmail",
+            controller: "User",
+            areaName: "Admin",
+            AdditionalFields = nameof(UserId),
+            HttpMethod = "Post",
+            ErrorMessage = "Email already exists."
+        )]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Date of Birth is required.")]

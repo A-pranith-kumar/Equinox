@@ -1,4 +1,4 @@
-@model IEnumerable<Equinox.Models.ClassCategory>
+@model IEnumerable<Equinox.Models.DomainModels.ClassCategory>
 
 @{
     ViewData["Title"] = "Category List";
@@ -6,10 +6,20 @@
 
 <h2 class="text-center mb-4">Category List</h2>
 
-@if (TempData["Success"] is string msg)
+@* Show error if delete was blocked *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Show success messages *@
+@if (TempData["Success"] != null || TempData["Message"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @msg
+        @(TempData["Success"] ?? TempData["Message"])
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
@@ -20,7 +30,6 @@
 }
 
 <p class="mb-3">
-    <!-- ✅ Make sure this points to Admin/ClassCategory/Create -->
     <a class="btn btn-primary"
        asp-area="Admin"
        asp-controller="ClassCategory"

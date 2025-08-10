@@ -1,6 +1,16 @@
-@model IEnumerable<Equinox.Models.Club>
+@model IEnumerable<Equinox.Models.DomainModels.Club>
 
 <h2>Club List</h2>
+
+@* server messages *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["Message"] != null || TempData["Success"] != null)
+{
+    <div class="alert alert-success">@((TempData["Message"] ?? TempData["Success"])!)</div>
+}
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Create New Club</a>

@@ -14,7 +14,7 @@ namespace Equinox.Models
             _max = max;
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
             // Check if DOB is null or invalid
             if (value == null || !(value is DateTime dob))

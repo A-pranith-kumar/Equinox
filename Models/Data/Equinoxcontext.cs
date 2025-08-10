@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System;
+using Equinox.Models.DomainModels;   // 
 
 namespace Equinox.Models
 {
@@ -7,14 +8,16 @@ namespace Equinox.Models
     {
         public EquinoxContext(DbContextOptions<EquinoxContext> options) : base(options) { }
 
-        public DbSet<EquinoxClass> EquinoxClasses { get; set; }
-        public DbSet<ClassCategory> ClassCategories { get; set; }
-        public DbSet<Club> Clubs { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<EquinoxClass> EquinoxClasses { get; set; } = default!;
+        public DbSet<ClassCategory> ClassCategories { get; set; } = default!;
+        public DbSet<Club> Clubs { get; set; } = default!;
+        public DbSet<User> Users { get; set; } = default!;
+        public DbSet<Booking> Bookings { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // ✅ Seeding Clubs
             modelBuilder.Entity<Club>().HasData(
                 new Club { ClubId = 1, Name = "Chicago Loop", PhoneNumber = "312-000-0001" },
@@ -82,6 +85,25 @@ namespace Equinox.Models
                     ClubId = 3
                 }
             );
+
+            // 🔒 Phase 4: Prevent cascading deletes (match your actual nav & FK names)
+            modelBuilder.Entity<EquinoxClass>()
+                .HasOne(c => c.Club)
+                .WithMany()                               // inverse collection not required
+                .HasForeignKey(c => c.ClubId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EquinoxClass>()
+                .HasOne(c => c.ClassCategory)             // nav is ClassCategory (not Category)
+                .WithMany()
+                .HasForeignKey(c => c.ClassCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EquinoxClass>()
+                .HasOne(c => c.Coach)                     // nav is Coach
+                .WithMany()
+                .HasForeignKey(c => c.CoachId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

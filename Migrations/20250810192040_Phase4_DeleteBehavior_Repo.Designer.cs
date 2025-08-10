@@ -3,6 +3,7 @@ using System;
 using Equinox.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Equinox.Migrations
 {
     [DbContext(typeof(EquinoxContext))]
-    partial class EquinoxContextModelSnapshot : ModelSnapshot
+    [Migration("20250810192040_Phase4_DeleteBehavior_Repo")]
+    partial class Phase4_DeleteBehavior_Repo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.7");

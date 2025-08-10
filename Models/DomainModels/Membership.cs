@@ -1,5 +1,5 @@
 
-namespace Equinox.Models
+namespace Equinox.Models.DomainModels
 {
     public class Membership
     {

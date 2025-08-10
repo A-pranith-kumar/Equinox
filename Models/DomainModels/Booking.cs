@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Equinox.Models
+namespace Equinox.Models.DomainModels
 {
     public class Booking
     {

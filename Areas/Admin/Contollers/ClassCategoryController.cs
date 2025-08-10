@@ -1,27 +1,33 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Equinox.Models;
 using System.Linq;
+using Equinox.Models;                      // EquinoxContext
+using Equinox.Models.DomainModels;         // ClassCategory, Booking, EquinoxClass
+using Equinox.Models.Data.Repository;      // Repository + QueryOptions
 
 namespace Equinox.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ClassCategoryController : Controller
     {
-        private readonly EquinoxContext _context;
+        private readonly Repository<ClassCategory> _categories;
+        private readonly Repository<EquinoxClass>  _classes;    // ← added
+        private readonly Repository<Booking>       _bookings;
 
         public ClassCategoryController(EquinoxContext context)
         {
-            _context = context;
+            _categories = new Repository<ClassCategory>(context);
+            _classes    = new Repository<EquinoxClass>(context);   // ← added
+            _bookings   = new Repository<Booking>(context);
         }
 
         // GET: /Admin/ClassCategory
         public IActionResult Index()
         {
-            var categories = _context.ClassCategories
-                                     .OrderBy(c => c.Name)
-                                     .ToList();
-            return View(categories);
+            var items = _categories.List(new QueryOptions<ClassCategory> {
+                OrderBy = c => c.Name,
+                OrderByDirection = "asc"
+            });
+            return View(items);
         }
 
         // GET: /Admin/ClassCategory/Create
@@ -29,57 +35,58 @@ namespace Equinox.Areas.Admin.Controllers
 
         // POST: /Admin/ClassCategory/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]   // ✅ Anti-forgery
+        [ValidateAntiForgeryToken]
         public IActionResult Create(ClassCategory category)
         {
-            // Optional: simple duplicate check
-            if (_context.ClassCategories.Any(c => c.Name == category.Name))
-            {
+            var exists = _categories.Get(new QueryOptions<ClassCategory> {
+                Where = c => c.Name == category.Name
+            }) != null;
+
+            if (exists)
                 ModelState.AddModelError(nameof(category.Name), "Category name already exists.");
-            }
 
             if (!ModelState.IsValid) return View(category);
 
-            _context.ClassCategories.Add(category);
-            _context.SaveChanges();
+            _categories.Insert(category);
+            _categories.Save();
             TempData["Success"] = "Category created successfully.";
-            return RedirectToAction(nameof(Index));   // ✅ PRG
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: /Admin/ClassCategory/Edit/5
         public IActionResult Edit(int id)
         {
-            var category = _context.ClassCategories.Find(id);
+            var category = _categories.Get(id);
             if (category == null) return NotFound();
             return View(category);
         }
 
         // POST: /Admin/ClassCategory/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]   // ✅ Anti-forgery
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, ClassCategory category)
         {
             if (id != category.ClassCategoryId) return NotFound();
 
-            // Optional: duplicate check (ignore current record)
-            if (_context.ClassCategories.Any(c => c.Name == category.Name && c.ClassCategoryId != id))
-            {
+            var exists = _categories.Get(new QueryOptions<ClassCategory> {
+                Where = c => c.Name == category.Name && c.ClassCategoryId != id
+            }) != null;
+
+            if (exists)
                 ModelState.AddModelError(nameof(category.Name), "Category name already exists.");
-            }
 
             if (!ModelState.IsValid) return View(category);
 
-            _context.ClassCategories.Update(category);
-            _context.SaveChanges();
+            _categories.Update(category);
+            _categories.Save();
             TempData["Success"] = "Category updated successfully.";
-            return RedirectToAction(nameof(Index));   // ✅ PRG
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: /Admin/ClassCategory/Details/5
         public IActionResult Details(int id)
         {
-            var category = _context.ClassCategories
-                                   .FirstOrDefault(c => c.ClassCategoryId == id);
+            var category = _categories.Get(id);
             if (category == null) return NotFound();
             return View(category);
         }
@@ -87,23 +94,57 @@ namespace Equinox.Areas.Admin.Controllers
         // GET: /Admin/ClassCategory/Delete/5
         public IActionResult Delete(int id)
         {
-            var category = _context.ClassCategories.Find(id);
+            var category = _categories.Get(id);
             if (category == null) return NotFound();
             return View(category);
         }
 
         // POST: /Admin/ClassCategory/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]   // ✅ Anti-forgery
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var category = _context.ClassCategories.Find(id);
-            if (category != null)
+            // 1) Block if any booking references a class in this category.
+            var hasBooked = _bookings.List(new QueryOptions<Booking> {
+                Includes = "EquinoxClass",
+                Where = b => b.EquinoxClass != null && b.EquinoxClass.ClassCategoryId == id
+            }).Any();
+
+            if (hasBooked)
             {
-                _context.ClassCategories.Remove(category);
-                _context.SaveChanges();
+                TempData["ErrorMessage"] =
+                    "Cannot delete category. One or more classes in this category have bookings.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 2) Block if any class still uses this category (avoids FK error).
+            var inUseByClasses = _classes.List(new QueryOptions<EquinoxClass> {
+                Where = c => c.ClassCategoryId == id
+            }).Any();
+
+            if (inUseByClasses)
+            {
+                TempData["ErrorMessage"] =
+                    "Cannot delete category. There are classes assigned to this category. " +
+                    "Delete or reassign those classes first.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var category = _categories.Get(id);
+            if (category == null) return NotFound();
+
+            try
+            {
+                _categories.Delete(category);
+                _categories.Save();
                 TempData["Success"] = "Category deleted successfully.";
             }
+            catch
+            {
+                TempData["ErrorMessage"] =
+                    "Delete failed due to related data. Please remove or reassign related records first.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

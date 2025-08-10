@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Equinox.Models;
-using Equinox.Helpers;
+using System.Linq;                      // <-- for Where/Include LINQ ops
+using Equinox.Models;                   // EquinoxContext
+using Equinox.Helpers;                  // EquinoxSession
+using Equinox.Models.ViewModels;        // <-- EquinoxFilterViewModel
 
 namespace Equinox.Controllers
 {
@@ -14,10 +16,7 @@ namespace Equinox.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
-        {
-            return RedirectToAction("Filter");
-        }
+        public IActionResult Index() => RedirectToAction("Filter");
 
         public IActionResult Filter(int selectedClubId = 0, int selectedCategoryId = 0)
         {
@@ -57,8 +56,7 @@ namespace Equinox.Controllers
                 .Include(c => c.Coach)
                 .FirstOrDefault(c => c.EquinoxClassId == id);
 
-            if (equinoxClass == null)
-                return NotFound();
+            if (equinoxClass == null) return NotFound();
 
             return View("Detail", equinoxClass);
         }

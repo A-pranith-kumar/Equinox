@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Equinox.Models
+namespace Equinox.Models.DomainModels
 {
     public class EquinoxClass
     {
