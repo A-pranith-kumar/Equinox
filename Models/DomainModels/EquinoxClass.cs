@@ -16,17 +16,20 @@ namespace Equinox.Models.DomainModels
 
         public string Time { get; set; } = string.Empty;
 
-        // Foreign Key to ClassCategory
+        // Foreign Key to ClassCategory (required via non-nullable FK)
+        [Required]
         public int ClassCategoryId { get; set; }
-        public ClassCategory ClassCategory { get; set; } = default!;
+        public ClassCategory ClassCategory { get; set; }   // no initializer
 
         // Foreign Key to User (Coach)
-        [ForeignKey("Coach")]
+        [Required]
+        [ForeignKey(nameof(Coach))]
         public int CoachId { get; set; }
-        public User Coach { get; set; } = default!;
+        public User Coach { get; set; }                    // no initializer
 
         // Foreign Key to Club
+        [Required]
         public int ClubId { get; set; }
-        public Club Club { get; set; } = default!;
+        public Club Club { get; set; }                     // no initializer
     }
 }

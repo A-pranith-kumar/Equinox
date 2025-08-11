@@ -593,9 +593,7 @@ C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\ne
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\scopedcss\bundle\Equinox.styles.css
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\scopedcss\projectbundle\Equinox.bundle.scp.css
-C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\9r8l5yrgak-b9sayid5wm.gz
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\q9ec1t5qs5-61n19gt1b8.gz
-C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\l8vgtmxckk-3qw3ak2udd.gz
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\59am7p68n6-xtxxf3hu2r.gz
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\3xwl5qmhdo-bqjiyaj88i.gz
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\2l41ovcink-c2jlpeoesf.gz
@@ -668,3 +666,5 @@ C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\ne
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.pdb
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\Equinox.genruntimeconfig.cache
 C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\ref\Equinox.dll
+C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\9r8l5yrgak-5up29w3g77.gz
+C:\Users\prani\OneDrive\Desktop\Internet Programming\Equinox_Phase2\obj\Debug\net9.0\compressed\3x07d731gh-trimnpoo5e.gz

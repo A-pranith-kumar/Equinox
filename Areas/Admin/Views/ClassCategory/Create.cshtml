@@ -1,23 +1,24 @@
 @model Equinox.Models.DomainModels.ClassCategory
 
 @{
-    ViewData["Title"] = "Create Class Category";
+    ViewData["Title"] = "Create Category";
 }
 
-<h2>Create Class Category</h2>
+<h2 class="mb-4">Create Category</h2>
 
 <form asp-action="Create" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="ClassCategoryId" />
 
     <div class="mb-3">
         <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
+        <input asp-for="Name" class="form-control" autocomplete="off" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Image" class="form-label"></label>
-        <input asp-for="Image" class="form-control" />
+        <input asp-for="Image" class="form-control" autocomplete="off" />
         <span asp-validation-for="Image" class="text-danger"></span>
     </div>
 

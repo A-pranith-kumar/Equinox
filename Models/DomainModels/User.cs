@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Equinox.Models.Validation;
 
 namespace Equinox.Models.DomainModels
 {
@@ -9,50 +10,32 @@ namespace Equinox.Models.DomainModels
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
-        [MaxLength(50)]
+        [StringLength(50, ErrorMessage = "Name must be 50 characters or less.")]
         [RegularExpression(@"^[a-zA-Z0-9 ]+$", ErrorMessage = "Name must be alphanumeric.")]
         [Display(Name = "Name")]
-        [Remote(
-            action: "VerifyName",
-            controller: "User",
-            areaName: "Admin",
-            AdditionalFields = nameof(UserId),
-            HttpMethod = "Post",
-            ErrorMessage = "Name already exists."
-        )]
-        public string Name { get; set; }
+        // point to /Admin/Validation/CheckUserName
+        [Remote("CheckUserName", "Validation", areaName: "Admin", AdditionalFields = nameof(UserId))]
+        public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Phone number is required.")]
-        [Phone(ErrorMessage = "Invalid phone number format.")]
+        [Phone(ErrorMessage = "Please enter a valid phone number.")]
         [Display(Name = "Phone Number")]
-        [Remote(
-            action: "VerifyPhoneNumber",
-            controller: "User",
-            areaName: "Admin",
-            AdditionalFields = nameof(UserId),
-            HttpMethod = "Post",
-            ErrorMessage = "Phone number already exists."
-        )]
-        public string PhoneNumber { get; set; }
+        // point to /Admin/Validation/CheckPhone
+        [Remote("CheckPhone", "Validation", areaName: "Admin", AdditionalFields = nameof(UserId))]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid email address.")]
-        [Display(Name = "Email")]
-        [Remote(
-            action: "VerifyEmail",
-            controller: "User",
-            areaName: "Admin",
-            AdditionalFields = nameof(UserId),
-            HttpMethod = "Post",
-            ErrorMessage = "Email already exists."
-        )]
-        public string Email { get; set; }
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [Display(Name = "Email Address")]
+        // point to /Admin/Validation/CheckEmail
+        [Remote("CheckEmail", "Validation", areaName: "Admin", AdditionalFields = nameof(UserId))]
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date of Birth is required.")]
         [DataType(DataType.Date)]
-        [MinimumAge(8, 80)]
+        [MinimumAge(8, 80, ErrorMessage = "Age must be between 8 and 80.")]
         [Display(Name = "Date of Birth")]
-        public DateTime DOB { get; set; }
+        public DateTime? DOB { get; set; }
 
         [Display(Name = "Is Coach")]
         public bool IsCoach { get; set; } = false;

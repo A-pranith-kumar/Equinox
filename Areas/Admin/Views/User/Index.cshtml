@@ -6,7 +6,6 @@
 
 <h2 class="text-center mb-4">Coach List</h2>
 
-@* show server messages *@
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
@@ -37,7 +36,7 @@
         <td>@coach.Name</td>
         <td>@coach.PhoneNumber</td>
         <td>@coach.Email</td>
-        <td>@coach.DOB.ToShortDateString()</td>
+        <td>@(coach.DOB?.ToString("d") ?? "")</td>
         <td>
             <a asp-action="Edit" asp-route-id="@coach.UserId">Edit</a> |
             <a asp-action="Details" asp-route-id="@coach.UserId">Details</a> |

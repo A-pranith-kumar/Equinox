@@ -19,7 +19,7 @@
 </div>
 
 <div class="mb-3">
-    <strong>DOB:</strong> @Model.DOB.ToShortDateString()
+    <strong>DOB:</strong> @(Model.DOB?.ToString("D") ?? "—")
 </div>
 
 <div class="mb-3">

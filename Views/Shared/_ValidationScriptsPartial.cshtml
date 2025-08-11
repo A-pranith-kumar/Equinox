@@ -1,5 +1,15 @@
-﻿<environment include="Development">
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-</environment>
+﻿<!-- Local first -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>')</script>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script>window.jQuery && !jQuery.validator && document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"><\/script>')</script>
+
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script>window.jQuery && (!jQuery.validator || !jQuery.validator.unobtrusive) && document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"><\/script>')</script>
+
+<script>
+  console.log("jQuery:", !!window.jQuery && jQuery.fn.jquery,
+              "validate:", !!(window.jQuery && jQuery.validator),
+              "unobtrusive:", !!(window.jQuery && jQuery.validator && jQuery.validator.unobtrusive));
+</script>
