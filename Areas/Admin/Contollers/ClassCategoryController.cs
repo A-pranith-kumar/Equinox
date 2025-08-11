@@ -10,15 +10,17 @@ namespace Equinox.Areas.Admin.Controllers
     public class ClassCategoryController : Controller
     {
         private readonly Repository<ClassCategory> _categories;
-        private readonly Repository<EquinoxClass>  _classes;    // ← added
+        private readonly Repository<EquinoxClass>  _classes;
         private readonly Repository<Booking>       _bookings;
 
         public ClassCategoryController(EquinoxContext context)
         {
             _categories = new Repository<ClassCategory>(context);
-            _classes    = new Repository<EquinoxClass>(context);   // ← added
+            _classes    = new Repository<EquinoxClass>(context);
             _bookings   = new Repository<Booking>(context);
         }
+
+        private static string Norm(string? s) => (s ?? string.Empty).Trim();
 
         // GET: /Admin/ClassCategory
         public IActionResult Index()
@@ -31,17 +33,27 @@ namespace Equinox.Areas.Admin.Controllers
         }
 
         // GET: /Admin/ClassCategory/Create
-        public IActionResult Create() => View();
+        public IActionResult Create() => View(new ClassCategory());  // ensure defaults (Id = 0)
 
         // POST: /Admin/ClassCategory/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ClassCategory category)
+        public IActionResult Create([Bind("Name,Image")] ClassCategory category)
         {
+            // If the view posts an empty Id, clear the binder error
+            ModelState.Remove(nameof(category.ClassCategoryId));
+
+            // Normalize
+            category.Name  = Norm(category.Name);
+            category.Image = Norm(category.Image);
+
+            // Required + uniqueness
+            if (string.IsNullOrWhiteSpace(category.Name))
+                ModelState.AddModelError(nameof(category.Name), "Category name is required.");
+
             var exists = _categories.Get(new QueryOptions<ClassCategory> {
                 Where = c => c.Name == category.Name
             }) != null;
-
             if (exists)
                 ModelState.AddModelError(nameof(category.Name), "Category name already exists.");
 
@@ -64,14 +76,17 @@ namespace Equinox.Areas.Admin.Controllers
         // POST: /Admin/ClassCategory/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, ClassCategory category)
+        public IActionResult Edit([Bind("ClassCategoryId,Name,Image")] ClassCategory category)
         {
-            if (id != category.ClassCategoryId) return NotFound();
+            category.Name  = Norm(category.Name);
+            category.Image = Norm(category.Image);
+
+            if (string.IsNullOrWhiteSpace(category.Name))
+                ModelState.AddModelError(nameof(category.Name), "Category name is required.");
 
             var exists = _categories.Get(new QueryOptions<ClassCategory> {
-                Where = c => c.Name == category.Name && c.ClassCategoryId != id
+                Where = c => c.ClassCategoryId != category.ClassCategoryId && c.Name == category.Name
             }) != null;
-
             if (exists)
                 ModelState.AddModelError(nameof(category.Name), "Category name already exists.");
 
@@ -133,18 +148,9 @@ namespace Equinox.Areas.Admin.Controllers
             var category = _categories.Get(id);
             if (category == null) return NotFound();
 
-            try
-            {
-                _categories.Delete(category);
-                _categories.Save();
-                TempData["Success"] = "Category deleted successfully.";
-            }
-            catch
-            {
-                TempData["ErrorMessage"] =
-                    "Delete failed due to related data. Please remove or reassign related records first.";
-            }
-
+            _categories.Delete(category);
+            _categories.Save();
+            TempData["Success"] = "Category deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

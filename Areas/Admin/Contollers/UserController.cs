@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Equinox.Models;                      // EquinoxContext
 using Equinox.Models.DomainModels;         // User, Booking, EquinoxClass
 using Equinox.Models.Data.Repository;      // Repository + QueryOptions
@@ -11,13 +12,13 @@ namespace Equinox.Areas.Admin.Controllers
     {
         private readonly Repository<User> _users;
         private readonly Repository<Booking> _bookings;
-        private readonly Repository<EquinoxClass> _classes;   // ← added
+        private readonly Repository<EquinoxClass> _classes;
 
         public UserController(EquinoxContext context)
         {
             _users    = new Repository<User>(context);
             _bookings = new Repository<Booking>(context);
-            _classes  = new Repository<EquinoxClass>(context); // ← added
+            _classes  = new Repository<EquinoxClass>(context);
         }
 
         // LIST
@@ -30,20 +31,42 @@ namespace Equinox.Areas.Admin.Controllers
             return View(items);
         }
 
-        // CREATE (GET)
-        public IActionResult Create() => View();
+        // CREATE (GET) — return a model so hidden inputs (if any) get safe defaults
+        public IActionResult Create() => View(new User());
 
         // CREATE (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(User user)
+        // Do NOT bind UserId on create; DOB is allowed to be empty
+        public IActionResult Create([Bind("Name,Email,PhoneNumber,DOB,IsCoach")] User user)
         {
-            // Server-side uniqueness checks
+            // Clear binder errors that can show up as: "The value '' is invalid."
+            ModelState.Remove(nameof(user.UserId)); // empty string → int
+            ModelState.Remove(nameof(user.DOB));    // allow empty DOB
+
+            // Normalize
+            user.Name        = (user.Name ?? "").Trim();
+            user.Email       = (user.Email ?? "").Trim();
+            user.PhoneNumber = (user.PhoneNumber ?? "").Trim();
+
+            // Basic server-side validation (in case client scripts are missing)
+            if (string.IsNullOrWhiteSpace(user.Name))
+                ModelState.AddModelError(nameof(user.Name), "Name is required.");
+            if (string.IsNullOrWhiteSpace(user.Email))
+                ModelState.AddModelError(nameof(user.Email), "Email is required.");
+
+            // Simple phone rule: optional, but if present must be 10 digits
+            if (!string.IsNullOrEmpty(user.PhoneNumber) &&
+                !Regex.IsMatch(user.PhoneNumber, @"^\d{10}$"))
+                ModelState.AddModelError(nameof(user.PhoneNumber), "Enter a 10-digit phone number (digits only).");
+
+            // Uniqueness checks
             if (_users.Get(new QueryOptions<User> { Where = u => u.Name == user.Name }) != null)
                 ModelState.AddModelError(nameof(user.Name), "Name already exists.");
             if (_users.Get(new QueryOptions<User> { Where = u => u.Email == user.Email }) != null)
                 ModelState.AddModelError(nameof(user.Email), "Email already exists.");
-            if (_users.Get(new QueryOptions<User> { Where = u => u.PhoneNumber == user.PhoneNumber }) != null)
+            if (!string.IsNullOrEmpty(user.PhoneNumber) &&
+                _users.Get(new QueryOptions<User> { Where = u => u.PhoneNumber == user.PhoneNumber }) != null)
                 ModelState.AddModelError(nameof(user.PhoneNumber), "Phone number already exists.");
 
             if (!ModelState.IsValid) return View(user);
@@ -65,14 +88,31 @@ namespace Equinox.Areas.Admin.Controllers
         // EDIT (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(User user)
+        public IActionResult Edit([Bind("UserId,Name,Email,PhoneNumber,DOB,IsCoach")] User user)
         {
-            // Exclude current record from duplicates
+            // Normalize
+            user.Name        = (user.Name ?? "").Trim();
+            user.Email       = (user.Email ?? "").Trim();
+            user.PhoneNumber = (user.PhoneNumber ?? "").Trim();
+
+            // Allow empty DOB on edit too, if your UI permits it
+            ModelState.Remove(nameof(user.DOB));
+            if (string.IsNullOrWhiteSpace(user.Name))
+                ModelState.AddModelError(nameof(user.Name), "Name is required.");
+            if (string.IsNullOrWhiteSpace(user.Email))
+                ModelState.AddModelError(nameof(user.Email), "Email is required.");
+
+            if (!string.IsNullOrEmpty(user.PhoneNumber) &&
+                !Regex.IsMatch(user.PhoneNumber, @"^\d{10}$"))
+                ModelState.AddModelError(nameof(user.PhoneNumber), "Enter a 10-digit phone number (digits only).");
+
+            // Exclude current record for uniqueness
             if (_users.Get(new QueryOptions<User> { Where = u => u.Name == user.Name && u.UserId != user.UserId }) != null)
                 ModelState.AddModelError(nameof(user.Name), "Name already exists.");
             if (_users.Get(new QueryOptions<User> { Where = u => u.Email == user.Email && u.UserId != user.UserId }) != null)
                 ModelState.AddModelError(nameof(user.Email), "Email already exists.");
-            if (_users.Get(new QueryOptions<User> { Where = u => u.PhoneNumber == user.PhoneNumber && u.UserId != user.UserId }) != null)
+            if (!string.IsNullOrEmpty(user.PhoneNumber) &&
+                _users.Get(new QueryOptions<User> { Where = u => u.PhoneNumber == user.PhoneNumber && u.UserId != user.UserId }) != null)
                 ModelState.AddModelError(nameof(user.PhoneNumber), "Phone number already exists.");
 
             if (!ModelState.IsValid) return View(user);
@@ -104,7 +144,6 @@ namespace Equinox.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            // 1) Phase 4 rule: block if any booking exists for classes taught by this coach.
             var hasBooked = _bookings.List(new QueryOptions<Booking> {
                 Includes = "EquinoxClass",
                 Where = b => b.EquinoxClass != null && b.EquinoxClass.CoachId == id
@@ -115,7 +154,6 @@ namespace Equinox.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // 2) Also block if any class still references this coach (avoids FK error).
             var inUseByClasses = _classes.List(new QueryOptions<EquinoxClass> {
                 Where = c => c.CoachId == id
             }).Any();
@@ -128,17 +166,9 @@ namespace Equinox.Areas.Admin.Controllers
             var item = _users.Get(id);
             if (item == null) return NotFound();
 
-            try
-            {
-                _users.Delete(item);
-                _users.Save();
-                TempData["Message"] = "Coach deleted successfully!";
-            }
-            catch
-            {
-                TempData["ErrorMessage"] = "Delete failed due to related data. Please remove or reassign related records first.";
-            }
-
+            _users.Delete(item);
+            _users.Save();
+            TempData["Message"] = "Coach deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
