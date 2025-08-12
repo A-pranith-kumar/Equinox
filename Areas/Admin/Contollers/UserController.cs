@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Equinox.Models;                      // EquinoxContext
 using Equinox.Models.DomainModels;         // User, Booking, EquinoxClass
 using Equinox.Models.Data.Repository;      // Repository + QueryOptions
+using Equinox.Models.ViewModels;           // PagedResult<T>
 
 namespace Equinox.Areas.Admin.Controllers
 {
@@ -21,46 +22,64 @@ namespace Equinox.Areas.Admin.Controllers
             _classes  = new Repository<EquinoxClass>(context);
         }
 
-        // LIST
-        public IActionResult Index()
+        private static string Norm(string? s) => (s ?? string.Empty).Trim();
+
+        // ---------- LIST (Paged) ----------
+        // Page 1 → 4 records, Page 2 → remaining (with your current data)
+        public IActionResult Index(int page = 1)
         {
-            var items = _users.List(new QueryOptions<User> {
+            const int pageSize = 4;  // fixed at 4 per page
+            if (page < 1) page = 1;
+
+            var total = _users.Count;   // total WITHOUT paging
+
+            var items = _users.List(new QueryOptions<User>
+            {
                 OrderBy = u => u.Name,
-                OrderByDirection = "asc"
-            });
-            return View(items);
+                OrderByDirection = "asc",
+                PageNumber = page,
+                PageSize = pageSize
+            }).ToList();
+
+            var model = new PagedResult<User>
+            {
+                Items      = items,
+                Page       = page,
+                PageSize   = pageSize,
+                TotalCount = total
+            };
+
+            return View(model);
         }
 
-        // CREATE (GET) — return a model so hidden inputs (if any) get safe defaults
-        public IActionResult Create() => View(new User());
+        // ---------- CREATE ----------
+        [HttpGet]
+        public IActionResult Create() => View(new User()); // safe defaults
 
-        // CREATE (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Do NOT bind UserId on create; DOB is allowed to be empty
+        // Do NOT bind UserId on create; DOB can be empty
         public IActionResult Create([Bind("Name,Email,PhoneNumber,DOB,IsCoach")] User user)
         {
-            // Clear binder errors that can show up as: "The value '' is invalid."
-            ModelState.Remove(nameof(user.UserId)); // empty string → int
-            ModelState.Remove(nameof(user.DOB));    // allow empty DOB
+            // clear binder noise like "The value '' is invalid."
+            ModelState.Remove(nameof(user.UserId));
+            ModelState.Remove(nameof(user.DOB));
 
-            // Normalize
-            user.Name        = (user.Name ?? "").Trim();
-            user.Email       = (user.Email ?? "").Trim();
-            user.PhoneNumber = (user.PhoneNumber ?? "").Trim();
+            user.Name        = Norm(user.Name);
+            user.Email       = Norm(user.Email);
+            user.PhoneNumber = Norm(user.PhoneNumber);
 
-            // Basic server-side validation (in case client scripts are missing)
             if (string.IsNullOrWhiteSpace(user.Name))
                 ModelState.AddModelError(nameof(user.Name), "Name is required.");
             if (string.IsNullOrWhiteSpace(user.Email))
                 ModelState.AddModelError(nameof(user.Email), "Email is required.");
 
-            // Simple phone rule: optional, but if present must be 10 digits
+            // phone optional but if present → 10 digits
             if (!string.IsNullOrEmpty(user.PhoneNumber) &&
                 !Regex.IsMatch(user.PhoneNumber, @"^\d{10}$"))
                 ModelState.AddModelError(nameof(user.PhoneNumber), "Enter a 10-digit phone number (digits only).");
 
-            // Uniqueness checks
+            // uniqueness
             if (_users.Get(new QueryOptions<User> { Where = u => u.Name == user.Name }) != null)
                 ModelState.AddModelError(nameof(user.Name), "Name already exists.");
             if (_users.Get(new QueryOptions<User> { Where = u => u.Email == user.Email }) != null)
@@ -77,7 +96,8 @@ namespace Equinox.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // EDIT (GET)
+        // ---------- EDIT ----------
+        [HttpGet]
         public IActionResult Edit(int id)
         {
             var item = _users.Get(id);
@@ -85,18 +105,17 @@ namespace Equinox.Areas.Admin.Controllers
             return View(item);
         }
 
-        // EDIT (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit([Bind("UserId,Name,Email,PhoneNumber,DOB,IsCoach")] User user)
         {
-            // Normalize
-            user.Name        = (user.Name ?? "").Trim();
-            user.Email       = (user.Email ?? "").Trim();
-            user.PhoneNumber = (user.PhoneNumber ?? "").Trim();
+            user.Name        = Norm(user.Name);
+            user.Email       = Norm(user.Email);
+            user.PhoneNumber = Norm(user.PhoneNumber);
 
-            // Allow empty DOB on edit too, if your UI permits it
+            // allow empty DOB on edit
             ModelState.Remove(nameof(user.DOB));
+
             if (string.IsNullOrWhiteSpace(user.Name))
                 ModelState.AddModelError(nameof(user.Name), "Name is required.");
             if (string.IsNullOrWhiteSpace(user.Email))
@@ -106,7 +125,7 @@ namespace Equinox.Areas.Admin.Controllers
                 !Regex.IsMatch(user.PhoneNumber, @"^\d{10}$"))
                 ModelState.AddModelError(nameof(user.PhoneNumber), "Enter a 10-digit phone number (digits only).");
 
-            // Exclude current record for uniqueness
+            // uniqueness excluding current record
             if (_users.Get(new QueryOptions<User> { Where = u => u.Name == user.Name && u.UserId != user.UserId }) != null)
                 ModelState.AddModelError(nameof(user.Name), "Name already exists.");
             if (_users.Get(new QueryOptions<User> { Where = u => u.Email == user.Email && u.UserId != user.UserId }) != null)
@@ -123,7 +142,7 @@ namespace Equinox.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // DETAILS
+        // ---------- DETAILS ----------
         public IActionResult Details(int id)
         {
             var item = _users.Get(id);
@@ -131,23 +150,35 @@ namespace Equinox.Areas.Admin.Controllers
             return View(item);
         }
 
-        // DELETE (GET)
+        // ---------- DELETE ----------
+        [HttpGet]
         public IActionResult Delete(int id)
         {
             var item = _users.Get(id);
-            if (item == null) return NotFound();
+            if (item == null)
+            {
+                TempData["ErrorMessage"] = "Coach not found or already deleted.";
+                return RedirectToAction(nameof(Index));
+            }
             return View(item);
         }
 
-        // DELETE (POST)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
+            var item = _users.Get(id);
+            if (item == null)
+            {
+                TempData["ErrorMessage"] = "Coach not found or already deleted.";
+                return RedirectToAction(nameof(Index));
+            }
+
             var hasBooked = _bookings.List(new QueryOptions<Booking> {
                 Includes = "EquinoxClass",
                 Where = b => b.EquinoxClass != null && b.EquinoxClass.CoachId == id
             }).Any();
+
             if (hasBooked)
             {
                 TempData["ErrorMessage"] = "Cannot delete coach. One or more of their classes have bookings.";
@@ -157,14 +188,12 @@ namespace Equinox.Areas.Admin.Controllers
             var inUseByClasses = _classes.List(new QueryOptions<EquinoxClass> {
                 Where = c => c.CoachId == id
             }).Any();
+
             if (inUseByClasses)
             {
                 TempData["ErrorMessage"] = "Cannot delete coach. They are still assigned to classes. Reassign or delete those classes first.";
                 return RedirectToAction(nameof(Index));
             }
-
-            var item = _users.Get(id);
-            if (item == null) return NotFound();
 
             _users.Delete(item);
             _users.Save();
@@ -172,10 +201,8 @@ namespace Equinox.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ---------------------------
-        // Remote Validation Endpoints
-        // ---------------------------
-
+        // ---------- Remote Validation Endpoints ----------
+        // Return TRUE when value is unique (valid)
         [AcceptVerbs("GET", "POST")]
         public IActionResult VerifyPhoneNumber(string phoneNumber, int userId = 0)
         {
