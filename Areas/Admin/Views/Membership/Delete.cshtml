@@ -1,0 +1,17 @@
+@model Equinox.Models.DomainModels.Membership
+@{
+    ViewData["Title"] = "Delete Membership";
+}
+
+<h2>Delete Membership</h2>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete <strong>@Model.Name</strong> (@Model.Price.ToString("C"))?
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="membershipId" value="@Model.MembershipId" />
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2 class="text-center my-4">Admin Dashboard</h2>
+
+<div class="d-flex justify-content-center gap-3">
+    <a asp-area="Admin" asp-controller="Club" asp-action="Index" class="btn btn-primary btn-lg px-5">
+        Manage Clubs
+    </a>
+    <a asp-area="Admin" asp-controller="ClassCategory" asp-action="Index" class="btn btn-success btn-lg px-5">
+        Manage Categories
+    </a>
+    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-warning btn-lg px-5 text-dark">
+        Manage Coaches
+    </a>
+</div>

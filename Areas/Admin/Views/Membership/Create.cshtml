@@ -1,0 +1,14 @@
+@model Equinox.Models.DomainModels.Membership
+@{
+    ViewData["Title"] = "Create Membership";
+}
+
+<h2>Create Membership</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @Html.Partial("_Form", Model)
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

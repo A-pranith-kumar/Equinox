@@ -1,0 +1,40 @@
+@model IEnumerable<Equinox.Models.DomainModels.Membership>
+@{
+    ViewData["Title"] = "Memberships";
+}
+
+<h2>Memberships</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th class="text-end">Price</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Name</td>
+                <td class="text-end">@m.Price.ToString("C")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="Edit" asp-route-id="@m.MembershipId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger"
+                       asp-action="Delete" asp-route-id="@m.MembershipId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,46 @@
+@{
+    // This layout nests inside the site-wide layout:
+    // If you prefer a standalone Admin layout, remove the next line.
+    Layout = "_Layout";
+    ViewData["Title"] = "Admin Layout";
+}
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin Home</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+                    aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="adminNav" class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Club" asp-action="Index">Manage Clubs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="ClassCategory" asp-action="Index">Manage Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="User" asp-action="Index">Manage Coaches</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" asp-area="" asp-controller="Home" asp-action="Index">Main Site</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="container mt-4">
+    @RenderBody()
+</main>
+
+@* IMPORTANT: allow views to inject scripts (validation, remote, etc.) *@
+@RenderSection("Scripts", required: false)

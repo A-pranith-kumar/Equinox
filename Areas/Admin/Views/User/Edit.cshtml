@@ -1,0 +1,144 @@
+@model Equinox.Models.DomainModels.User
+
+@{
+    ViewData["Title"] = "Edit Coach";
+}
+
+<h2 class="text-center mb-4">Edit Coach</h2>
+
+<form id="userForm" asp-action="Edit" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="UserId" id="UserId" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" id="Name" autocomplete="off" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" autocomplete="off" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" id="Email" autocomplete="off" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DOB" class="form-label"></label>
+        <input asp-for="DOB" class="form-control" id="DOB" type="date" />
+        <span asp-validation-for="DOB" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsCoach" class="form-check-input" id="IsCoach" />
+        <label asp-for="IsCoach" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/minimumage.js"></script>
+    <script>
+        (function () {
+            var $form  = $("#userForm");
+            var $id    = $("#UserId");
+            var $name  = $("#Name");
+            var $phone = $("#PhoneNumber");
+            var $email = $("#Email");
+
+            $.validator.addMethod("alnumspace", function (v, e) {
+                return this.optional(e) || /^[a-zA-Z0-9 ]+$/.test(v);
+            }, "Name must be alphanumeric.");
+
+            $.ajaxSetup({ cache: false });
+
+            $form.removeData("validator").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse($form);
+
+            $form.validate({
+                ignore: [],
+                onkeyup: function (el) { $(el).valid(); },
+                rules: {
+                    Name: {
+                        required: true,
+                        alnumspace: true,
+                        remote: {
+                            url: "/Admin/Validation/CheckUserName",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                name: function () { return $name.val(); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    PhoneNumber: {
+                        required: true,
+                        normalizer: function (v) { return (v || "").replace(/\D+/g, ""); },
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 15,
+                        remote: {
+                            url: "/Admin/Validation/CheckPhone",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                phoneNumber: function () { return $phone.val().replace(/\D+/g, ""); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    Email: {
+                        required: true,
+                        email: true,
+                        normalizer: function (v) { return $.trim(v); },
+                        remote: {
+                            url: "/Admin/Validation/CheckEmail",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                email: function () { return $email.val(); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    DOB: {
+                        required: true,
+                        minimumage: { min: 8, max: 80 }
+                    }
+                },
+                messages: {
+                    Name: { required: "Name is required." },
+                    PhoneNumber: {
+                        required: "Phone number is required.",
+                        digits: "Use digits only.",
+                        minlength: "Enter at least 10 digits.",
+                        maxlength: "Enter no more than 15 digits."
+                    },
+                    Email: {
+                        required: "Email is required.",
+                        email: "Please enter a valid email address."
+                    },
+                    DOB: {
+                        required: "Date of Birth is required.",
+                        minimumage: "Age must be between 8 and 80."
+                    }
+                }
+            });
+
+            $("#Name,#PhoneNumber,#Email,#DOB").on("input blur change", function () {
+                $(this).removeData("previousValue");
+                $form.validate().element(this);
+            });
+        })();
+    </script>
+}

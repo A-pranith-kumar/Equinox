@@ -1,0 +1,124 @@
+@model Equinox.Models.ViewModels.PagedResult<Equinox.Models.DomainModels.ClassCategory>
+
+@{
+    ViewData["Title"] = "Category List";
+}
+
+<h2 class="text-center mb-4">Category List</h2>
+
+@* Error message *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Success message(s) *@
+@if (TempData["Success"] != null || TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @(TempData["Success"] ?? TempData["Message"])
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.TotalCount == 0)
+{
+    <div class="alert alert-info">No categories yet. Click “Create New Category” to add one.</div>
+    <p class="mb-3">
+        <a class="btn btn-primary"
+           asp-area="Admin"
+           asp-controller="ClassCategory"
+           asp-action="Create">
+            Create New Category
+        </a>
+    </p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="text-muted">
+            Showing @Model.FirstItemNumber–@Model.LastItemNumber of @Model.TotalCount
+        </div>
+        <div>
+            <a class="btn btn-primary"
+               asp-area="Admin"
+               asp-controller="ClassCategory"
+               asp-action="Create">
+                Create New Category
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary me-1"
+                       asp-area="Admin"
+                       asp-controller="ClassCategory"
+                       asp-action="Edit"
+                       asp-route-id="@item.ClassCategoryId">Edit</a>
+
+                    <a class="btn btn-sm btn-outline-secondary me-1"
+                       asp-area="Admin"
+                       asp-controller="ClassCategory"
+                       asp-action="Details"
+                       asp-route-id="@item.ClassCategoryId">Details</a>
+
+                    <a class="btn btn-sm btn-outline-danger"
+                       asp-area="Admin"
+                       asp-controller="ClassCategory"
+                       asp-action="Delete"
+                       asp-route-id="@item.ClassCategoryId">Delete</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <nav aria-label="Categories pagination">
+        <ul class="pagination">
+            <li class="page-item @(Model.HasPrev ? "" : "disabled")">
+                <a class="page-link"
+                   asp-area="Admin"
+                   asp-controller="ClassCategory"
+                   asp-action="Index"
+                   asp-route-page="@(Model.Page - 1)"
+                   asp-route-pageSize="@Model.PageSize">Prev</a>
+            </li>
+
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link"
+                       asp-area="Admin"
+                       asp-controller="ClassCategory"
+                       asp-action="Index"
+                       asp-route-page="@p"
+                       asp-route-pageSize="@Model.PageSize">@p</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link"
+                   asp-area="Admin"
+                   asp-controller="ClassCategory"
+                   asp-action="Index"
+                   asp-route-page="@(Model.Page + 1)"
+                   asp-route-pageSize="@Model.PageSize">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

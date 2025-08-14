@@ -1,0 +1,179 @@
+@model Equinox.Models.DomainModels.User
+
+@{
+    ViewData["Title"] = "Create Coach";
+
+    // Build remote endpoints (adjust area if needed)
+    var checkNameUrl  = Url.Action("CheckUserName", "Validation", new { area = "Admin" });
+    var checkPhoneUrl = Url.Action("CheckPhone",    "Validation", new { area = "Admin" });
+    var checkEmailUrl = Url.Action("CheckEmail",    "Validation", new { area = "Admin" });
+}
+
+<h2 class="text-center mb-4">Create Coach</h2>
+
+<form id="userForm" asp-action="Create" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="UserId" id="UserId" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" id="Name" autocomplete="off" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber" autocomplete="off" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" id="Email" autocomplete="off" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DOB" class="form-label"></label>
+        <input asp-for="DOB" class="form-control" id="DOB" type="date" />
+        <span asp-validation-for="DOB" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsCoach" class="form-check-input" id="IsCoach" />
+        <label asp-for="IsCoach" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-success" id="btnSubmit">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <!-- jQuery Validate + Unobtrusive via CDN (avoids 404 on /lib/...) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Custom age adapter -->
+    <script src="~/js/minimumage.js"></script>
+
+    <script>
+        (function () {
+            var $form  = $("#userForm");
+            var $id    = $("#UserId");
+            var $name  = $("#Name");
+            var $phone = $("#PhoneNumber");
+            var $email = $("#Email");
+
+            // make error text reliably red
+            $("head").append("<style>.field-validation-error,span.text-danger,.validation-summary-errors li{color:#dc3545!important}</style>");
+
+            // letters, digits, and space
+            $.validator.addMethod("alnumspace", function (v, e) {
+                return this.optional(e) || /^[a-zA-Z0-9 ]+$/.test(v);
+            }, "Name must be alphanumeric.");
+
+            $.ajaxSetup({ cache: false });
+
+            // ensure unobtrusive is attached
+            if ($.validator && $.validator.unobtrusive) {
+                $form.removeData("validator").removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($form);
+            }
+
+            // build validator + remote rules
+            $form.validate({
+                ignore: [],
+                errorClass: "text-danger",
+                onkeyup: function (el) { $(el).valid(); },
+                rules: {
+                    Name: {
+                        required: true,
+                        alnumspace: true,
+                        remote: {
+                            url: "@checkNameUrl",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                name: function () { return $name.val(); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    PhoneNumber: {
+                        required: true,
+                        normalizer: function (v) { return (v || "").replace(/\D+/g, ""); },
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 15,
+                        remote: {
+                            url: "@checkPhoneUrl",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                phoneNumber: function () { return $phone.val().replace(/\D+/g, ""); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    Email: {
+                        required: true,
+                        email: true,
+                        normalizer: function (v) { return $.trim(v); },
+                        remote: {
+                            url: "@checkEmailUrl",
+                            type: "GET",
+                            dataType: "json",
+                            data: {
+                                email: function () { return $email.val(); },
+                                userId: function () { return $id.val() || 0; }
+                            }
+                        }
+                    },
+                    DOB: {
+                        required: true,
+                        minimumage: { min: 8, max: 80 }
+                    }
+                },
+                messages: {
+                    Name: { required: "Name is required." },
+                    PhoneNumber: {
+                        required: "Phone number is required.",
+                        digits: "Use digits only.",
+                        minlength: "Enter at least 10 digits.",
+                        maxlength: "Enter no more than 15 digits."
+                    },
+                    Email: {
+                        required: "Email is required.",
+                        email: "Please enter a valid email address."
+                    },
+                    DOB: {
+                        required: "Date of Birth is required.",
+                        minimumage: "Age must be between 8 and 80."
+                    }
+                }
+            });
+
+            // live validate + clear remote cache
+            $("#Name,#PhoneNumber,#Email,#DOB").on("input blur change", function () {
+                $(this).removeData("previousValue");
+                $form.validate().element(this);
+            });
+
+            // SAFE SUBMIT: wait for any remote calls to finish, then post
+            $("#btnSubmit").on("click", function (e) {
+                e.preventDefault();
+                var v = $form.data("validator");
+                if (!$form.valid()) return;
+
+                (function waitForRemote() {
+                    if (v && v.pendingRequest > 0) { setTimeout(waitForRemote, 100); return; }
+                    if ($form.valid()) {
+                        $form.off("submit.validate");
+                        $form.get(0).submit();
+                    }
+                })();
+            });
+        })();
+    </script>
+}
